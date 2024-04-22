@@ -10,7 +10,7 @@ Created on Tue Mar 26 10:24:19 2024
 
 @author: ikowa
 """
-import simpleGE, pygame, random, time
+import simpleGE, pygame, random, math, time
 
 class Knight(simpleGE.Sprite):
     def __init__(self, scene):
@@ -55,7 +55,7 @@ class Knight(simpleGE.Sprite):
             self.speed = 5
         if keepGoing == True:
             self.speed = 0
-        for barrier in self.scene.wall:
+        for barrier in self.scene.walls:
             if self.collidesWith(barrier):
                 self.x -= self.dx
                 self.y -= self.dy
@@ -64,7 +64,25 @@ class Knight(simpleGE.Sprite):
 class Wall(simpleGE.Sprite):
     def __init__(self, scene):
         super().__init__(scene)
+        self.visible = True
+        self.setImage("Mug.png")
+        self.setSize(25,25)
+        self.position = (300,300)
+        self.moveSpeed = .1
         self.colorRect("green",(50,50))
+    def process(self):
+        for enemy in self.scene.hurts:
+            dist = math.hypot(abs(self.x-enemy.x), abs(self.y-enemy.y))
+            if dist <= 100:
+                #print("please I need this")
+                self.timer = simpleGE.Timer()
+                self.timer.totalTime = 2
+                self.timer.start()
+                if self.timer == 10:
+                    print("clock checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+                
+   
+    """
     def process(self):
         for enemy in self.scene.hurts:
             if self.distanceTo((self.hurts.x,self.hurts.y)) >=1:
@@ -74,7 +92,7 @@ class Wall(simpleGE.Sprite):
                 self.timer.start()
                 if time == 3:
                    self.wall.color  = "blue"
-                   
+    """
     
 class Placer(simpleGE.Sprite):
     def __init__(self, scene):
@@ -131,19 +149,23 @@ class Hurt(simpleGE.Sprite):
             self.reset()
 
     def process(self):
-        for barrier in self.scene.wall:
+       
+        for barrier in self.scene.walls:
             if self.collidesWith(barrier):
                 self.x -= self.dx
                 self.y -= self.dy
                 self.speed = 0
-
-"""
+                #print("aaaaaaaaaaaa")
+        for barrier in self.scene.walls:
+            dist = math.hypot(abs(self.x-barrier.x), abs(self.y-barrier.y))
+            #if dist <= 100:
+                #print("bppp")
 class LblScore(simpleGE.Label):
     def __init__(self):
         super().__init__()
         self.text = "Score: 0"
         self.center =  (100,30)
-"""
+
 class Game(simpleGE.Scene):
     def __init__(self):
         super().__init__()
@@ -153,22 +175,32 @@ class Game(simpleGE.Scene):
         self.placer = Placer(self)
         #self.lblscore = LblScore()
         self.numHurt = 4
-        self.wall = []
+        self.numWall = 1
+        self.walls = []
         self.hurts = []
-        for i in range(10):
-            newWall = Wall(self)
-            newWall.y= 300
-            newWall.x= (i*50)+ 125
-            self.wall.append(newWall)
+        for i in range(self.numWall):
+            #newWall = Wall(self)
+            #newWall.y= 300
+            #newWall.x= (i*50)+ 125
+            self.walls.append(Wall(self))
         
         for i in range(self.numHurt):
             self.hurts.append(Hurt(self))
+     
         #self.placer.distanceTo(Knight) == 0
         self.sprites = [self.knight,
                         self.placer,
-                        self.wall,
+                        self.walls,
                         self.hurts]
-
+    """
+    def process(self):
+        for hurt in self.hurts:
+            if hurt.collidesWith((self.walls)):
+                #this is the "visible" one when activated
+                print("BBBBB")
+    """
+    
+   
     #def process(self):
      #   for hurts in self.hurts:
       #      if hurts.collidesWith(self.wall):
@@ -181,18 +213,7 @@ class Game(simpleGE.Scene):
                 #hurt.reset()
                
 # hey here is a good idea. Have the enemies get faster every 30 seconds. Have an invisisble timeer, and whenever the time divided by something is three, increase enemy speed
-        """
-        def setPrevScore(self, prevScore):
-            self.prevScore = prevScore
-            self.lblScore.text = f":Last score: {self.prevScore}"
-        """
        
-        """
-        def process(self):
-            for placer in self.placer:
-                if  placer.distanceTo(self.knight) >5:
-                    placer.
-        """
             
 def main():
     game = Game()
