@@ -1,0 +1,319 @@
+Final Pseudocode- 
+
+Pseudocode:
+
+
+
+
+import simpleGE, pygame, random, math
+
+class Knight(simpleGE.Sprite):
+	def __init__(self, scene): - initializing Knight with parameters self and scene
+		super initialize with parameter scent, allowing object to interact with others on the screen
+		set image as knight.png
+		set size with dimensions 25,25
+		set position as x 320, y 300 or anywhere near the center of the screen
+		set self.movespeed = .1, so the knight has slow movement to make the player easier catch by enemies
+	def process(self):
+		keepGoing = True (to start while loop and make conditions within it constant
+		if the up key is pressed:
+			set move angle to 90 to move up
+			set speed += .1 to accelerate in this direction
+			keepGoing = False, ending loop for when the button is no longer pressed
+		elif the down key is pressed:
+			set move angle = 270 to move down
+			set speed += .1
+			keepGoing = False
+		elif the left key is pressed:
+			move angle = 190 to move left
+			speed += .1
+		elif right key is pressed:
+			move angle = 0 to move right
+			speed += .1
+			keepGoing = False
+		if self.speed > 5:
+			self.speed = 5, to stop it from getting too fast
+		if keepGoing == True:
+			self.speed = 0, so it won't move when the key isn't pressed
+		for barrier in self.scene.walls:
+			if self collides with barrier:
+				self.x -= self.dx
+                		self.y -= self.dy - essentially subtracting whatever knight just moved from itself, so it doesn't move
+                		self.speed = 0, stopping movement
+class Wall(simpleGE.Sprite):
+	def __init__(self, scene):
+        	super().__init__(scene)
+		set image = wall.png
+		set size as 25,25
+		set position as -10,-10, or anywhere offscreen
+	 
+class Coin(simpleGE.Sprite):
+    	def __init__(self, scene):
+        	super().__init__(scene)
+		set self image as = Coing.png
+		self size = 25,25
+		self.reset(), resetting postion as soon as game starts for randomness
+	def reset(self):
+		random y value between 0 and screen height
+		random x value between 0 and screen Width
+	
+class Placer(simpleGE.Sprite):
+	def __init__(self, scene):
+        	super().__init__(scene)	
+		set solor(remove)
+		set size (add)
+		set image = (add)
+	def process(self):
+		keepGoing = True
+		if the w key is pressed:
+			set move angle to 90 to move up
+			set speed += .4 to accelerate in this direction
+			keepGoing = False, ending loop for when the button is no longer pressed
+		elif the s key is pressed:
+			set move angle = 270 to move down
+			set speed += .4
+			keepGoing = False
+		elif the a key is pressed:
+			move angle = 190 to move left
+			speed += .4
+		elif right d is pressed:
+			move angle = 0 to move right
+			speed += .4
+			keepGoing = False
+		if self.speed > 5:
+			self.speed = 5, to stop it from getting too fast
+		if keepGoing == True:
+			self.speed = 0, so it won't move when the key isn't pressed
+    
+class Hurt(simpleGE.Sprite):
+	def __init__(self, scene):
+        	super().__init__(scene)
+		set image as goblin.png
+		set size 25,25
+		reset hurt
+	def reset(self):
+		choose side of the screen coins/hurts come from by selecting a  random int # 1 through 4
+		if # == 1:
+			self.y = 10
+            		self.x = random.randint(0, self.screenWidth)
+            		self.dy = random.randint(self.minSpeed,self.maxSpeed) (top of screen to bottom)
+		 if # == 2:  
+			self.y = random.randint(0, self.screenHeight)
+            		self.x = 640
+            		self.dx = random.randint(self.maxNegative, self.minNegative) (right of screen to left)
+		if # == 3:
+			self.y = 450
+           		self.x = random.randint(0, self.screenWidth)
+           		self.dy = random.randint(self.maxNegative, self.minNegative) (bottom of screen to top)
+		if # == 4:
+			self.y = random.randint(0, self.screenHeight)
+            		self.x = 0
+            		self.dx = random.randint(self.minSpeed,self.maxSpeed) (left of screen to right)
+
+	def checkBounds(self):
+		if the bottom of the the hurt is greater than the screen height:
+			reset the hurt, giving it new random numbers as well
+		elif the y value is less than 0:
+			reset the hurt
+		elif the x value is greaeter than 640:
+			reset the hurt
+		elif the x value is less than 0:
+			reset the hurt (all 4 collectively reset the hurt if it exists the screen that is visible to the play)
+	for barrier in self.scene.walls:
+			if self collides with barrier:
+				self.x -= self.dx
+                		self.y -= self.dy - essentially subtracting whatever goblin just moved from itself, so it doesn't move
+                		self.speed = 0, stopping movement
+				self.reset()
+class LblScore(simpleGE.Label):
+	def _init__(self):
+		super initialize
+		set text = Score:0 (which will be replaced by new scores)
+		center the text at 100, 30
+class LblTime(simpleGE.Label):
+		def _init__(self):
+		super initialize
+		set text = Time left: 10 (which will be replaced by the actual timer)
+		center text at 300, 30
+class LblLives(simpleGE.Label):
+		def _init__(self):
+		super initialize
+		set tex = Lives Left: 3
+		center text at 300, 30
+class Game(simpleGE.Scene):
+	def __init__(self):
+        	super().__init__()
+		set image = field.png
+		self.knight = Knight(self), setting the class equal to a variable I can use
+        	self.placer = Placer(self)
+        	self.timer = simpleGE.Timer()
+        	self.numCoins = 5
+        	self.score = 0
+        	self.timer.totalTime = 180
+        	self.lives = 3
+        	self.numHurt = 4
+        	self.numWall = 4
+        	self.wallsIndex = 0 
+        	self.lblTime = LblTime()
+        	self.lblLives= LblLives()
+        	self.lblscore = LblScore()
+        	self.walls = [],making it a list
+        	self.hurts = []
+        	self.coins = []
+        	for i in range(self.numWall):
+            	self.walls.append(Wall(self)), making the amount of sprites equal to self.numWall
+        	for i in range(self.numCoins):
+            		self.coins.append(Coin(self))
+        	for i in range(self.numHurt):
+            		self.hurts.append(Hurt(self))
+        	self.sprites = [self.knight,
+                        self.placer,
+                        self.walls,
+                        self.hurts,
+                      	self.coins,
+                        self.lblscore,
+                        self.lblTime,
+                        self.lblLives]
+	def moveWall(self):
+     	   for hurtz in self.hurts:
+         	   if hurtz.collidesWith(self.walls): - if the enemy collides with the wall, it resets
+            	    self.walls.reset()
+	def setPrevScore(self, prevScore):
+			set self.prevScore = prevScore to easily modify it
+			self.lblScore.text = f":Last score: {self.prevScore}"	
+	def process(self):
+		self.lblTime.text = f"Time left: {self.timer.getTimeLeft():.2f}", printing the time left 
+		if self.timer.getTimeLeft() < 0:
+            		print(f"Score: {self.score} ")
+            		self.stop(), returning instructions screen
+		for coin in self.coins:
+			if coin collides with knight:
+				reset coin
+				add 1 to score
+				update score label text to reflect new score
+		if self.placer.x > abs(self.knight.x + 40):, setting paraeters for placer getting too far from Knight in postiive x direction
+            		keepGoing1 = True 
+           		while keepGoing1:
+                		self.placer.x -= 10
+                		keepGoing1 = False, ending loop so it doesn't move forever
+        	if self.placer.x < abs(self.knight.x - 40):
+            		keepGoing2 = True
+            		while keepGoing2:
+                		self.placer.x += 10
+                		keepGoing2 = False
+        	if self.placer.y > abs(self.knight.y + 40):
+            		keepGoing3 = True
+            		while keepGoing3:
+                		self.placer.y -= 10
+                		keepGoing3 = False
+        	if self.placer.y < abs(self.knight.y - 40):
+            		keepGoing4 = True
+            		while keepGoing4:
+                		self.placer.y += 10
+                		keepGoing4 = False
+		for hurtz in self.hurts:
+            		dist = math.hypot(abs(hurtz.x-self.knight.x), abs(hurtz.y-self.knight.y)). Basically, find the hypotenuse/distance between an enemy and Knight 
+            		if dist < 5:
+                		self.lives -= 1. removing a life
+                		self.lblLives.text = f"Lives Left = {self.lives}", updateing life counter
+                		hurtz.reset()
+                		print(f"{self.lives}")
+                		if self.lives < 1:
+                    			self.stop(), returning to instructions when lives get too low, endning the gameplay
+			if hurtz.x > abs(self.knight.x): - if enemy isn't in the same placer as knight with x and is greater. Repear for lesser, and for both y possibilities
+                		keepGoing1 = True
+                		while keepGoing1:
+                    			hurtz.x -= 3, move 3 spots toward x. Modify appropriately for other directions
+                    			keepGoing1 = False
+            		if hurtz.x < abs(self.knight.x):
+                		keepGoing2 = True
+                		while keepGoing2:
+                		    hurtz.x += 3
+                    			keepGoing2 = False
+            		if hurtz.y > abs(self.knight.y):
+                		keepGoing3 = True
+                		while keepGoing3:
+                    			hurtz.y -= 3
+                    			keepGoing3 = False
+            		if hurtz.y < abs(self.knight.y):
+                		keepGoing4 = True
+                		while keepGoing4:
+                    			hurtz.y += 3
+                   			keepGoing4 = False 
+	def processEvent(self,event):
+		if user press a key down(ie reigsters once):
+			if the key pressed is q:
+				self.walls[self.wallsIndex].position = (self.placer.x,self.placer.y) - ie the wall index will be thee # in walls.Index, and its postion will be equal to the x and y of placer
+				add one to wallsIndex
+				if wallsIndex is greater than 3, the max amount of walls including 0:
+					set wallsIndex to 0, so that teh first wall is moved again
+		
+class Instructions(simpleGE.Scene):
+    def __init__(self, prevScore):
+        super().__init__()
+	self.prevScore = prevScore for easy modification	
+	set the backgorund image to kinggdom.png
+	set self.response = "Quit"
+	make the multilabel for modification directions
+	set the directions text in textlines = 
+	"Goblins are attacking! Defend yourself with walls!",
+            "Use the directional arrows to move your Knight",
+            "Use WASD keys to select where to place walls",
+            "Collect coins to increase your score!",
+            "Avoid goblins to protect your 3 lives!",
+            "Hit q to place walls"]
+	center directions at 320,240
+	size directions dimensions 500 by 250
+	make the play button
+	make the text"Play"
+	make the text purple
+	make background clear
+	set the play button at 100,400
+	make the quit button
+	set the quit button text as "Quit"
+	set the text color = red
+	center the quit label at 540, 400
+	create the score label
+	center the score label at 320, 400
+	set the text of the label = prevScore, the last score recorded in the game
+	make the backgorund clear
+	self.sprites = [self.directions,
+                        self.btnPlay,
+                        self.btnQuit,
+                        self.lblScore]
+	def process(self):
+		if play button clicked:
+			response is "Play", playing the game
+			stop the current menu
+		if quit button is clickedL
+			response is "Quit", quittng the game
+			stop the current menu
+		
+	
+	
+def main():
+	keepGoingF = True
+	lastScore = 0
+	 while keepGoingF:
+        	instructions = Instructions(lastScore)
+        	instructions.start()
+        	if instructions.response == "Play":
+            		game = Game()
+            		game.start()
+            		lastScore = game.score, preservning the eprevious score
+        	else:
+            		keepGoingF = False
+if __name__ == "__main__":
+    main()
+
+
+					 
+		
+
+	
+Variable List:
+
+
+
+			
+
